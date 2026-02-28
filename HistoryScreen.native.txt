@@ -1,0 +1,121 @@
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  FlatList, 
+  TextInput, 
+  StyleSheet, 
+  TouchableOpacity,
+  SafeAreaView 
+} from 'react-native';
+import { Mic, Search, ShieldCheck, ArrowUpRight, ArrowDownRight } from 'lucide-react-native';
+
+/**
+ * Zuno "History Screen" Component (React Native)
+ * Designed for professional financial reporting and bank-ready audit trails.
+ */
+const HistoryScreen = ({ transactions }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filter, setFilter] = useState('All');
+
+  const filteredData = transactions.filter(item => {
+    const matchesSearch = item.item.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         item.customer.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filter === 'All' || item.type === filter;
+    return matchesSearch && matchesFilter;
+  });
+
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <View style={styles.leftSection}>
+          <View style={[
+            styles.iconContainer, 
+            { backgroundColor: item.type === 'Sale' ? '#ecfdf5' : (item.type === 'Purchase' ? '#fef2f2' : '#fff7ed') }
+          ]}>
+            {item.type === 'Sale' ? <ArrowUpRight color="#10b981" size={24} /> : <ArrowDownRight color="#ef4444" size={24} />}
+          </View>
+          <View>
+            <Text style={styles.itemText}>{item.item}</Text>
+            <Text style={styles.subText}>{item.qty} units • {item.type}</Text>
+          </View>
+        </View>
+        <View style={styles.rightSection}>
+          <Text style={[
+            styles.amountText, 
+            { color: item.type === 'Sale' ? '#10b981' : (item.type === 'Purchase' ? '#ef4444' : '#f97316') }
+          ]}>
+            ₹{item.price * item.qty}
+          </Text>
+          <Text style={styles.timeText}>{new Date(item.timestamp).toLocaleTimeString()}</Text>
+        </View>
+      </View>
+      
+      {/* Audit Trail Section */}
+      <View style={styles.auditTrail}>
+        <View style={styles.intentRow}>
+          <Mic size={12} color="#94a3b8" />
+          <Text style={styles.intentText}>"{item.intentProof}"</Text>
+        </View>
+        <View style={styles.verifiedBadge}>
+          <ShieldCheck size={12} color="#10b981" />
+          <Text style={styles.verifiedText}>VERIFIED</Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Digital Ledger</Text>
+        <TouchableOpacity style={styles.reportButton}>
+          <Text style={styles.reportButtonText}>Download Report</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.searchContainer}>
+        <Search size={20} color="#94a3b8" />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search transactions..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
+      <FlatList
+        data={filteredData}
+        keyExtractor={item => item.id.toString()}
+        renderItem={renderItem}
+        contentContainerStyle={styles.listContent}
+      />
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#f8fafc' },
+  header: { padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  headerTitle: { fontSize: 24, fontWeight: '800', color: '#0f172a' },
+  reportButton: { backgroundColor: '#10b981', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 12 },
+  reportButtonText: { color: 'white', fontWeight: '700', fontSize: 12 },
+  searchContainer: { margin: 20, backgroundColor: 'white', borderRadius: 16, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', height: 50, borderWidth: 1, borderColor: '#e2e8f0' },
+  searchInput: { flex: 1, marginLeft: 10, fontSize: 14 },
+  listContent: { padding: 20 },
+  card: { backgroundColor: 'white', borderRadius: 24, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: '#f1f5f9' },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  leftSection: { flexDirection: 'row', alignItems: 'center' },
+  iconContainer: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyCenter: 'center' },
+  itemText: { fontSize: 16, fontWeight: '700', color: '#1e293b' },
+  subText: { fontSize: 12, color: '#94a3b8', marginTop: 2 },
+  amountText: { fontSize: 18, fontWeight: '900' },
+  timeText: { fontSize: 10, color: '#94a3b8', textAlign: 'right', marginTop: 4 },
+  auditTrail: { marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f1f5f9', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  intentRow: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  intentText: { fontSize: 10, color: '#94a3b8', fontStyle: 'italic', marginLeft: 6 },
+  verifiedBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f0fdf4', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  verifiedText: { fontSize: 8, fontWeight: '900', color: '#10b981', marginLeft: 4 }
+});
+
+export default HistoryScreen;

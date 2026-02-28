@@ -1,0 +1,5 @@
+{
+  "name": "Zuno",
+  "description": "Zero-Touch AI financial assistant for credit-invisible micro-entrepreneurs. Converts ambient Hinglish conversations into a verified digital ledger and Zuno Score.",
+  "requestFramePermissions": ["microphone"]
+}
